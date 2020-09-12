@@ -7,5 +7,5 @@ def configure(app):
     app.db = db
 
 class AIModel(db.Model):
-    name = db.Column(db.String(255), primary_key=True)
-    description = db.Column(db.String(255))
+    nome = db.Column(db.String(255), primary_key=True)
+    descricao = db.Column(db.String(255))

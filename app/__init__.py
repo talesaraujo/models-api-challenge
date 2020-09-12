@@ -2,13 +2,15 @@ from flask import Flask
 from flask_migrate import Migrate
 from .model import configure as config_db
 from .serializer import configure as config_ma
+from app.config import Config
 
 
-def create_app():
+def create_app(config_class=Config):
     app = Flask(__name__)
     
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/models.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    # Import configs
+    app.config.from_object(Config)
 
     config_db(app)
     config_ma(app)
@@ -18,4 +20,4 @@ def create_app():
     from .main import bp_aimodels
     app.register_blueprint(bp_aimodels)
 
-    return app
+    return app  
