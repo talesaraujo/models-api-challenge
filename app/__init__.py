@@ -5,10 +5,9 @@ from .serializer import configure as config_ma
 from app.config import Config
 
 
-def create_app(config_class=Config):
+def create_app():
     app = Flask(__name__)
     
-
     # Import configs
     app.config.from_object(Config)
 
@@ -17,7 +16,7 @@ def create_app(config_class=Config):
 
     Migrate(app, app.db)
 
-    from .main import bp_aimodels
+    from .routes import bp_aimodels
     app.register_blueprint(bp_aimodels)
 
     return app  

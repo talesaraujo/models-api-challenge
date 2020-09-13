@@ -15,6 +15,7 @@ requests = "*"
 ipdb = "*"
 pylint = "*"
 coverage = "*"
+prospector = "*"
 
 [requires]
 python_version = "3.8"
