@@ -32,7 +32,7 @@ def get_model(nome):
 @bp_aimodels.route('/modelo', methods=['POST'])
 def create_model():
     try:
-        aims = AIModelSchema()
+        aims = AIModelSchema(only=('nome', 'descricao'))
         aimodel = aims.load(request.json, session=db.session)
         current_app.db.session.add(aimodel)
         current_app.db.session.commit()
