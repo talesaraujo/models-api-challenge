@@ -14,6 +14,7 @@ marshmallow-sqlalchemy = "*"
 requests = "*"
 ipdb = "*"
 pylint = "*"
+coverage = "*"
 
 [requires]
 python_version = "3.8"

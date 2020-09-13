@@ -130,3 +130,7 @@ dmypy.json
 
 # VScode files
 .vscode
+
+# Coverage reports
+.coverage
+htmlcov/
