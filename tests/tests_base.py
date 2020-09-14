@@ -13,6 +13,8 @@ class TestBase(TestCase):
         self.client = self.app.test_client()
         self.app.db.create_all()
 
+
     def tearDown(self):
         """Runs after all tests"""
+        self.app.db.session.rollback()
         self.app.db.drop_all()
