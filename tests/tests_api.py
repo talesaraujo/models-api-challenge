@@ -1,11 +1,12 @@
-from .tests_base import TestBase
 from flask import url_for
+from .tests_base import TestBase
 
 from marshmallow.exceptions import ValidationError
-from sqlalchemy.exc import IntegrityError, InvalidRequestError
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 
 
+# Models used for testing
 sample_models = [
     {
         'nome': 'CNNDenoisingAutoEncoder',
@@ -13,15 +14,14 @@ sample_models = [
     },
     {
         'nome': 'CNNDenoisingAutoEncoder',
-        #'descricao': 'Um outro modelo de autoencoder que permite limpar imagens ruidosas'
     },
     {
         'nome': 'CatsXDogsClassifier',
-        'descricao': 'Rede neural convolucional que permite classificar cães e gatos.'
+        'descricao': 'Rede neural convolucional que permite classificar cães e gatos com X camadas convolucionais'
     },
     {
         'nome': 'CatsXDogsClassifier',
-        'descricao': 'OUTRA Rede neural convolucional que permite classificar cães e gatos'
+        'descricao': 'Rede neural convolucional que permite classificar cães e gatos com Y camadas convolucionais'
     },
     {
         "nome": "Coronavirus Kmeans-classifier",
@@ -36,79 +36,85 @@ sample_models = [
 
 
 class TestGetModel(TestBase):
+    """A class used to perform tests on getting data transactions"""
+    def test_get_all_models(self):
+        """Tests whether all models are correctly sent by the server"""
+        # Removing wrong labeled models to avoid errors
+        new_sample_models = [model for index, model in enumerate(sample_models) if index not in (1, 3)]
+        # Populating the database
+        for model in new_sample_models:
+            self.client.post(url_for('aimodels.create_model'), json=model)
+        # Performing GET request to /modelo
+        response = self.client.get(url_for('aimodels.fetch_all'))
+        # Ensure that all models from response match with 'original' list
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(new_sample_models, response.json)
+
+
+    def test_get_model_by_name_must_return_sent_model(self):
+        """Performs GET requests looking for models in order to assure each model corresponds what is expected to"""
+        # Removing wrong labeled models to avoid errors
+        new_sample_models = [model for index, model in enumerate(sample_models) if index not in (1, 3)]
+        # Populating the database
+        for model in new_sample_models:
+            self.client.post(url_for('aimodels.create_model'), json=model)
+        # For each request, save currently response state
+        for model in new_sample_models:
+            response = self.client.get(url_for('aimodels.get_model', nome=model['nome']))
+            # Ensure that response matches expected format 
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(model , response.json)
+
 
     def test_get_model_by_name_must_return_error_after_looking_for_a_model_that_is_not_in_the_database(self):
+        """Checks whether an error is raised after searching for a non-existent model"""
         # Picking a model
         model = sample_models[0]
-
+        # Perform GET request to /modelo with 'nome' as url parameter
         response = self.client.get(url_for('aimodels.get_model', nome=model['nome']))
-
+        # Ensure matching conditions to response received
         self.assertRaises(NoResultFound)
         self.assertEqual(404, response.status_code)
         self.assertEqual({'error': 'No such model found within the database'}, response.json)
 
 
-    def test_get_all_models(self):
-        # Removing wrong labeled models to avoid errors
-        new_sample_models = [model for index, model in enumerate(sample_models) if index not in (1, 3)]
-        
-        # Populating the database
-        for model in new_sample_models:
-            self.client.post(url_for('aimodels.create_model'), json=model)
-
-        response = self.client.get(url_for('aimodels.fetch_all'))
-
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(new_sample_models, response.json)
-
-    def test_get_model_by_name_must_return_sent_payload(self):
-        # Removing wrong labeled models to avoid errors
-        new_sample_models = [model for index, model in enumerate(sample_models) if index not in (1, 3)]
-        
-        # Populating the database
-        for model in new_sample_models:
-            self.client.post(url_for('aimodels.create_model'), json=model)
-
-        for model in new_sample_models:
-            response = self.client.get(url_for('aimodels.get_model', nome=model['nome']))
-
-            self.assertEqual(200, response.status_code)
-            self.assertEqual(model , response.json)
-
-
 
 class TestCreateModel(TestBase):
-
+    """A class used to perform tests on creating data transactions"""
     def test_create_model_must_return_sent_payload(self):
+        """Checks whether created model has been successfuly sent to server"""
         # Picking a model with complete payload
         model = sample_models[0]
-
+        # Perform POST request with model as payload
         response = self.client.post(url_for('aimodels.create_model'), json=model)
-
+        # Ensure response matches data that has been sent previously
         self.assertEqual(model, response.json)
         self.assertEqual(201, response.status_code)
 
 
     def test_create_model_must_return_error_after_sending_incomplete_payload(self):
-        # Picking a model with incomplete payload
+        """Checks whether an error is sent after providing an incomplete payload"""
+        # Picking a model with incomplete data
         model = sample_models[1]
-
+        # Perform POST request with model as payload
         response = self.client.post(url_for('aimodels.create_model'), json=model)
-
+        # Ensure response contains correct error message and status code
         self.assertRaises(ValidationError)
         self.assertEqual({'error': 'Invalid input'}, response.json)
         self.assertEqual(400, response.status_code)
 
     
     def test_create_model_must_return_error_after_sending_duplicated_name(self):
+        """Checks whether an error is sent after providing a name that is already in the database"""
         # Picking two models with same names but different descriptions
         model_1, model_2 = sample_models[2], sample_models[3] 
-        
+        # Perform post requests with chosen models as payload
         response_1 = self.client.post(url_for('aimodels.create_model'), json=model_1)
         response_2 = self.client.post(url_for('aimodels.create_model'), json=model_2)
-
-        self.assertRaises(IntegrityError)
+        # Ensure first response is well received by the server
         self.assertEqual(201, response_1.status_code)
         self.assertEqual(model_1, response_1.json)
+        # Certify that second response holds an error message and a exception has been raised
+        self.assertRaises(IntegrityError)
         self.assertEqual(409, response_2.status_code)
         self.assertEqual({'error': 'Given name already found within the database'}, response_2.json)

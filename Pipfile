@@ -16,6 +16,7 @@ ipdb = "*"
 pylint = "*"
 coverage = "*"
 prospector = "*"
+pylint-flask = "*"
 
 [requires]
 python_version = "3.8"

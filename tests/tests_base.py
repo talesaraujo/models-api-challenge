@@ -3,7 +3,7 @@ from app import create_app
 
 
 class TestBase(TestCase):
-
+    """This class defines the default test boilerplate meant to run before and after each test"""
     def setUp(self):
         """Runs before all tests"""
         self.app = create_app()
