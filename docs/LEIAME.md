@@ -11,10 +11,13 @@ Este é um projeto Python feito em Flask que procura fornecer um serviço de ger
 Retorna todos os modelos com suas respectivas descrições.
 
 ### `GET /modelo/<nome-do-modelo>`
-Retorna somente o modelo e a descrição baseados no nome passado como parâmetro de URL
+Retorna somente o modelo e a descrição baseados no nome passado como parâmetro de URL.
 
 ### `POST /modelo`
-Cria um novo modelo baseado no payload da requisição
+Cria um novo modelo baseado no payload da requisição.
+
+### `DELETE /modelo/<nome-do-modelo>`
+Remove um modelo do banco de dados. O nome do modelo é utilizado como parâmetro de busca.
 
 ## Exemplo
 Eis um exemplo de um arquivo json gerenciado pela API:

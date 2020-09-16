@@ -10,12 +10,15 @@ This is a Python Flask project that intends to provide a management service of d
 Returns all models and their respective descriptions.
 
 ### `GET /modelo/<nome-do-modelo>`
-Returns only the model and the description from the name passed in as a URL parameter
+Returns only the model and the description from the name passed in as a URL parameter.
 
 ### `POST /modelo`
-Creates a new model based on request payload
+Creates a new model based on request payload.
 
-## Sample
+### `DELETE /modelo/<nome-do-modelo>`
+Removes a model from the database. The name of the model is used as a query parameter.
+
+## Demo
 Here's a sample of a json file managed by the API ("nome" stands for name and "descricao" stands for description):
 ```json
 {

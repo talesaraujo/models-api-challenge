@@ -118,3 +118,37 @@ class TestCreateModel(TestBase):
         self.assertRaises(IntegrityError)
         self.assertEqual(409, response_2.status_code)
         self.assertEqual({'error': 'Given name already found within the database'}, response_2.json)
+
+
+
+class TestRemoveModel(TestBase):
+    """A class that performs tests on removing data transactions"""
+    def test_remove_model_must_send_error_message_after_sending_inexistent_model(self):
+        """Ensures that an error message is sent after sending a model that does not exist"""
+        # Picking a model from list
+        model = sample_models[0]
+        # Removing the model from database
+        response = self.client.delete(url_for('aimodels.remove_model', nome=model['nome']))
+        # Ensuring correct response is received
+        self.assertRaises(NoResultFound)
+        self.assertEqual({"error": "No such model in the database"}, response.json)
+        self.assertEqual(404, response.status_code)
+    
+
+    def test_remove_model_must_delete_data_from_database(self):
+        """Checks whether model deletion really removed the intended row from the database table"""
+        # Picking a model from list
+        model = sample_models[5]
+        # Inserting the model into the database
+        self.client.post(url_for('aimodels.create_model'), json=model)
+        # Removing the very same model from database
+        response_delete = self.client.delete(url_for('aimodels.remove_model', nome=model['nome']))
+        # Querying for this model
+        response_query = self.client.get(url_for('aimodels.get_model', nome=model['nome']))
+        # Ensure that model deletion messages have been sent
+        self.assertEqual({'status': 'Given model has been deleted'}, response_delete.json)
+        self.assertEqual(200, response_delete.status_code)
+        # Ensure that removed model is not in the database anymore
+        self.assertRaises(NoResultFound)
+        self.assertEqual({'error': 'No such model found within the database'}, response_query.json)
+        self.assertEqual(404, response_query.status_code)
