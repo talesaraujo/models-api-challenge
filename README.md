@@ -13,7 +13,7 @@ Returns all models and their respective descriptions.
 Returns only the model and the description from the name passed in as a URL parameter
 
 ### `POST /modelo`
-Creates a new model
+Creates a new model based on request payload
 
 ## Sample
 Here's a sample of a json file managed by the API ("nome" stands for name and "descricao" stands for description):
@@ -27,7 +27,7 @@ Here's a sample of a json file managed by the API ("nome" stands for name and "d
 ## How to run this project
 First off, you must have [Python](https://www.python.org/) 3 installed. [Here](https://www.python.org/downloads) you can find links to the latest builds for your operating system.
 
-In order to manage dependencies and virtual environments, I recommend using [`pipenv`](https://pypi.org/project/pipenv) if you intend to modify/provide improvements to the code, although `pip` will also work if you chose to do so. 
+In order to manage dependencies and virtual environments, I recommend using [`pipenv`](https://pypi.org/project/pipenv) if you intend to modify/provide improvements to the code, although `pip` will also work if you choose to do so. 
 Switch to the project directory and install all the requirements afterwards:
 ```sh
 pip install -r requirements.txt 
