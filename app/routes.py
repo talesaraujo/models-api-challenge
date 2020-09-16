@@ -61,3 +61,23 @@ def create_model():
     except IntegrityError:
         # If user provides an already existing name, return error message with status code
         return jsonify({'error': 'Given name already found within the database'}), 409
+
+
+@bp_aimodels.route('/modelo/<nome>', methods=['DELETE'])
+def remove_model(nome):
+    """Removes a model from the database"""
+    try:
+        # Search for intended model name
+        result = AIModel().query.filter_by(nome=nome).delete()
+        # Perform db transaction
+        current_app.db.session.commit()
+        # If there's no model with this name, raise exception
+        if not result:
+            message = "No such model in the database"
+            raise NoResultFound(message)
+        # Return a message with transaction status
+        return jsonify({'status': 'Given model has been deleted'}), 200
+
+    except NoResultFound:
+        # Return a message with transaction status
+        return jsonify({"error": message}), 404
